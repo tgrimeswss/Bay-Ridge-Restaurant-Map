@@ -2,7 +2,7 @@ var map;//Global map variable
 var markers = [];//Original markers array set empty. This will become populated in a for loop from the locations variable
 
 var Location = function(data) {//Constructor for the titles
-  this.title = data.title //See above
+  this.title = data.title; //See above
 };
 
 var ViewModel = {
@@ -23,8 +23,8 @@ var ViewModel = {
   makeLocations: function(locations) {//Creating the array of location titles
     var self = this;
     locations.forEach(function(location) {
-      self.markerArray.push(new Location(location))
-    })
+      self.markerArray.push(new Location(location));
+    });
   },
   goToLocation : function(place,data) {
     place.marker.popInfoWindow();//Calls the marker property 'popInfoWindow' which callbacks the populateInfoWindow function
@@ -63,6 +63,15 @@ function initMap() {
     //title, the corresponding website and some animation.
     var largeInfoWindow = new google.maps.InfoWindow();
 
+    var createWindow = function() {
+      populateInfoWindow(this,largeInfoWindow);
+    };
+
+    var windowClick = function() {
+      populateInfoWindow(this,largeInfoWindow);
+      this.setAnimation(google.maps.Animation.DROP);
+    };
+
     var createMarkers = (function() {//Creates a marker for every location below with attached properties
       for (var i = 0; i < locations.length; i++) {
         var position = locations[i].location;
@@ -78,20 +87,14 @@ function initMap() {
           id : i
         });
 
+        //Added marker functionality attachments below
         locations[i].marker = marker;//Adds a marker property to the location data
-        ViewModel.markerArray()[i].marker = marker;
-
-        marker.popInfoWindow = function() {//Adds a property to the marker to create the info window with street view
-          populateInfoWindow(this,largeInfoWindow);
-        }
-
-        marker.addListener('click',function(){//Adds click element to the actual markers on the map which opens the info window with google street view
-          populateInfoWindow(this,largeInfoWindow);
-          this.setAnimation(google.maps.Animation.DROP);
-        });
+        ViewModel.markerArray()[i].marker = marker;//Adds the marker titles for the search query
+        marker.popInfoWindow = createWindow;//Adds a property to create a window for the currently selected marker
+        marker.addListener('click',createWindow);//Attaches the click element to each marker
         markers.push(marker);//Adds the current marker to the array of markers
       }
-    })()
+    })();
 
     var populateInfoWindow = function (marker,infowindow) {
       //If the window isn't connected to a marker, set the window to nothing
@@ -108,7 +111,7 @@ function initMap() {
         //If the status of the streetView is good to go, create a nearby location
         //then create DOM node that has a head, storing the marker title, marker pano
         //and the marker website
-        function getStreetView(data, status) {
+        var getStreetView = function (data, status) {
           if (status == google.maps.StreetViewStatus.OK) {//If the status of the StreetView is good to go...
             console.log('Name: '+marker.title+'. GPS: '+marker.position);//Log the coordinates and title
             var nearStreetViewLocation = data.location.latLng;//Create a variable to store the nearest location to the current marker selected
@@ -129,7 +132,7 @@ function initMap() {
             infowindow.setContent('<div>' + marker.title + '</div>' +//If the marker isn't found, Create an alert box telling the user there is no street view found
               '<div>No Street View Found</div>');
           }
-        }
+        };
         streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);// Open the infowindow on the correct marker.
         infowindow.open(map, marker);// Open the infowindow on the correct marker.
 
@@ -137,7 +140,7 @@ function initMap() {
         map.setZoom(16);//Zoom to 16 on the map
         marker.setAnimation(google.maps.Animation.DROP);//Animates the marker
       }
-    }
+    };
   }
 
 ViewModel.query.subscribe(ViewModel.search);//Subscribes the changes made in the search query box
