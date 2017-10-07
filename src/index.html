@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<!--All code written by Thomas Grimes with the help of Udacity.com-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Map Project - Thomas Grimes</title>
+    <link href="styles.css" rel="stylesheet">
+    <link href="bootstrap/css/bootstrap-grid.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Asap+Condensed" rel="stylesheet">
+  </head>
+  <body style="font-family: 'Asap Condensed', sans-serif; background-color:black;">
+    <div class='container'>
+      <div class="row">
+        <div class="col-sm-12" id="topBar" style="text-align:center;margin: 10px 0px 10px 0px;border-bottom:solid white 1px;padding:5px">
+          <span style="color:white;">Where to eat in . . .
+            <span style="font-size: 300%">
+               Bay Ridge
+             </span>
+           </span>
+        </div>
+        <hr>
+      </div>
+      <div class='row'>
+        <div class='col-md-3' style="text-align:center;background-color:#1D2120;border: solid white 2px;" id="sideBar">
+          <p style="text-align:center;color:white;">Restaurant search
+            <input id="search" type="search" name="search" style="margin: 10px;" placeholder="Search for a place" data-bind="value: query, valueUpdate: 'keyup'"/>
+          </p>
+
+          <ul style="padding:0;" data-bind="foreach:markerArray"><!--locationsArray-->
+            <li class="sideBarElements">
+              <span id="place" data-bind="text:title,click:$parent.goToLocation"></span>
+            </li>
+          </ul>
+        </div>
+        <div class="col-md-9">
+          <div id="map"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <script src="http://knockoutjs.com/downloads/knockout-3.4.2.js"></script>
+    <script src="knockoutMapping.js"></script>
+    <script src="model.js"></script>
+    <script src="app.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry&key=AIzaSyDnuPkFW6XLlwH-L6RXzlpEMyLsQFZghXE&v=3&callback=initMap"></script>
+    <script src=""></script>
+  </body>
+</html>

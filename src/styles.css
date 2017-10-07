@@ -1,0 +1,33 @@
+#map {
+  height: 550px;
+  width: 100%;
+  border: solid white 2px;
+}
+
+#pano {
+  width: 200px;
+  height: 200px;
+}
+
+#topBar {
+  margin: 10px 0px 10px 0px;
+}
+
+.sideBarElements:hover {
+  background-color: #2D3936;
+  color: white;
+  cursor: pointer;
+}
+
+.sideBarElements {
+  list-style-type: none;
+  padding: 7px 0 7px 0;
+  border: solid black 1px;
+  background-color: #2D3332;
+  border: solid white 1px;
+  color: #D8D3D3;
+}
+
+#infoWindow {
+  text-align: center;
+}
