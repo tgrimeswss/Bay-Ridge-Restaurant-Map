@@ -6,7 +6,7 @@ var locations = [
       lng: -74.032819
     },
     website : 'http://www.menupages.com/restaurants/ninos-pizza-2/',
-    imgs : ''
+    resID : 16773789
   },
   {
     title: 'Paneantico Bakery',
@@ -15,7 +15,7 @@ var locations = [
       lng: -74.0322818
     },
     website : 'http://paneantico.com/',
-    imgs : ''
+    resID : 16774543
   },
   {
     title: 'Chadwick\'s',
@@ -24,7 +24,7 @@ var locations = [
       lng: -74.032024
     },
     website : 'http://www.chadwicksbrooklyn.com/',
-    imgs : ''
+    resID : 16762443
   },
   {
     title: 'Ho\'Brah',
@@ -33,7 +33,7 @@ var locations = [
       lng: -74.031478
     },
     website : 'http://www.hobrahtacos.com/',
-    imgs : ''
+    resID : 16787457
   },
   {
     title: 'Campania',
@@ -42,7 +42,7 @@ var locations = [
       lng: -74.033271
     },
     website : 'http://campaniacoalfiredpizza.com/',
-    imgs : ''
+    resID: 16792572
   },
   {
     title: 'Pizza Wagon',
@@ -51,7 +51,7 @@ var locations = [
       lng: -74.026519
     },
     website : 'http://www.menupages.com/restaurants/pizza-wagon/',
-    imgs : ''
+    resID : 16775406
   },
   {
     title: 'Ruzana Restaurant',
@@ -60,7 +60,7 @@ var locations = [
       lng: -74.026080
     },
     website : 'https://www.grubhub.com/restaurant/ruzana-restaurant-486-85th-st-brooklyn/467327?gclid=Cj0KCQjwr53OBRCDARIsAL0vKrOBhoyhDYF7KOnQabvpgCsPGwWnVqAHADT8fvamf3X5YJDIX-bmJBoaAuF5EALw_wcB&utm_source=google&utm_medium=cpc&utm_campaign=New%2BYork,%2BNY%2B%7C%2BBrooklyn,%2BNY%2B%7C%2BRestaurants&utm_term=%2Bruzana%20%2Brestaurant&efkwid=348392143142&ef_id=WVgsyAAAAGsEpQhC:20170925024646:s',
-    imgs : ''
+    resID : 16790067
   },
   {
     title: 'Tanoreen',
@@ -69,7 +69,7 @@ var locations = [
       lng: -74.027754
     },
     website : 'http://tanoreen.com/',
-    imgs : ''
+    resID : 16779244
   },
   {
     title: 'Ginos',
@@ -78,7 +78,7 @@ var locations = [
       lng: -74.022757
     },
     website : 'https://www.ginosbayridge.com/',
-    imgs : ''
+    resID : 16766731
   },
   {
     title: 'Mussels & More',
@@ -87,6 +87,6 @@ var locations = [
       lng: -74.023982
     },
     website : 'http://www.musselsnmore.com/',
-    imgs : ''
+    resID: 16786788
   }
 ];

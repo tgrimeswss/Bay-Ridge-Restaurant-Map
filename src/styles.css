@@ -1,5 +1,5 @@
 #map {
-  height: 550px;
+  height: 500px;
   width: 100%;
   border: solid white 2px;
 }
@@ -19,15 +19,25 @@
   cursor: pointer;
 }
 
-.sideBarElements {
+li {
   list-style-type: none;
+}
+
+.sideBarElements {
   padding: 7px 0 7px 0;
   border: solid black 1px;
-  background-color: #2D3332;
+  background-color: #787373;
   border: solid white 1px;
-  color: #D8D3D3;
+  color: #F5F2F2;
 }
 
 #infoWindow {
   text-align: center;
+}
+
+.zomatoPic {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 150px;
 }
