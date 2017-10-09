@@ -34,7 +34,7 @@ var ViewModel = {
       success: function(response, status, xhr) {
         console.log(status);
         ViewModel.reviewList.removeAll();//Removes all current items in the review Array
-        for (i in response.user_reviews) {//Pushes each review into an observable array
+        for (var i = 0; i < response.user_reviews.length; i++) {//Pushes each review into an observable array
           ViewModel.reviewList.push('"'+response.user_reviews[i].review.review_text+'"');//See above
         }
         console.log(response);
@@ -53,13 +53,13 @@ var ViewModel = {
   },
 
   showAllmarkers : function() {
-    for (x in markers) {
+    for (var x = 0; x < markers.length; x++) {
       markers[x].setVisible(true);
       markers[x].setAnimation(google.maps.Animation.DROP);
     }
   },
   hideAllmarkers : function() {
-    for (x in markers) {
+    for (var x = 0; x < markers.length; x++){
       markers[x].setVisible(false);
     }
   },
@@ -71,7 +71,7 @@ var ViewModel = {
     });
   },
   goToLocation : function(place,data) {
-    for (x in markers) {
+    for (var x = 0; x < markers.length; x++) {
       markers[x].setVisible(false);//Clears all visible markers off the map
     }
     place.marker.setVisible(true);//Makes the current marker selected visible
