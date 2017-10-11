@@ -1,7 +1,7 @@
 var map;//Global map variable
 var markers = [];//Original markers array set empty. This will become populated in a for loop from the locations variable
-
-window.onerror = function(msg,url,line) {//If the DOM does not load properly...
+var reviews = [];//Global array for Zomato reviews
+/*window.onerror = function(msg,url,line) {//If the DOM does not load properly...
   alert('Hmm.. There seems to be a problem loading this page.\n\n' +
   'Message: ' + msg + '\nURL : ' + url + '\nLine : ' + line);
   return true;
@@ -9,7 +9,33 @@ window.onerror = function(msg,url,line) {//If the DOM does not load properly...
 
 mapError = function() {//If the map does not load properly...
   alert('There seems to be a map error');
-};
+};*/
+
+var zomatoReviews = function(place,marker) {//Ajax request to Zomato.com for restaurant reviews
+  $.ajax({
+    dataType: 'json',
+    url: 'https://developers.zomato.com/api/v2.1/reviews?res_id='+place.marker.resID,
+    headers: {
+      'user-key': '19b6f28a79ec4858856da336e1fee593'
+    },
+    success: function(response, status, xhr) {
+      this.clearReviews();//Clears any pre-existing zomato Reviews from any other clicked marker
+      ViewModel.reviewList.removeAll();//Removes all current items in the review Array
+      for (var i = 0; i < response.user_reviews.length; i++) {//Pushes each review into an observable array
+        ViewModel.reviewList.push('"'+response.user_reviews[i].review.review_text +'"');
+        reviews.push('"'+response.user_reviews[i].review.review_text +'"');//See above
+      }
+      place.marker.popInfoWindow();
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert('Hmm.. There seems to a problem with our Zomato API. Check back ' +
+       'in with us later. We are working on to fix it.')
+    },
+    clearReviews : function() {
+      reviews.splice(0,reviews.length);
+    },
+  });
+}
 
 var Location = function(data) {//Constructor for the titles
   this.title = data.title; //See above
@@ -22,32 +48,18 @@ var ViewModel = {
 
   query : ko.observable(''),//Empty search array
 
-  reviewList : ko.observableArray(),//Empty review array
-
-  zomatoReviews : function(place) {//Ajax request to Zomato.com for restaurant reviews
-    $.ajax({
-      dataType: 'json',
-      url: 'https://developers.zomato.com/api/v2.1/reviews?res_id='+place.marker.resID,
-      headers: {
-        'user-key': '19b6f28a79ec4858856da336e1fee593'
-      },
-      success: function(response, status, xhr) {
-        console.log(status);
-        ViewModel.reviewList.removeAll();//Removes all current items in the review Array
-        for (var i = 0; i < response.user_reviews.length; i++) {//Pushes each review into an observable array
-          ViewModel.reviewList.push('"'+response.user_reviews[i].review.review_text+'"');//See above
-        }
-        console.log(response);
-      }
-    });
-  },
+  reviewList : ko.observableArray(),//Empty review array with default welcome message
 
   search : function(value) {//Create a function that passes in a string value that will act as a search string for a location
+    for (var i = 0; i<markers.length; i++) {//Removes the markers from the map
+      markers[i].setVisible(false);
+    }
     ViewModel.reviewList.removeAll();//Removes the Zomato reviews
     ViewModel.markerArray.removeAll();//Removes all locations from the locations observableArray
     for (var x in locations) {//For every individual location in the markers array...
       if (locations[x].title.toLowerCase().indexOf(value.toLowerCase()) >= 0) {//If the title of the location(set to lowercase) is = to the text value typed...
         ViewModel.markerArray.push(locations[x]);//Push the new location onto the visible list
+        markers[x].setVisible(true);//Toggle the marker visibility
       }
     }
   },
@@ -58,11 +70,6 @@ var ViewModel = {
       markers[x].setAnimation(google.maps.Animation.DROP);
     }
   },
-  hideAllmarkers : function() {
-    for (var x = 0; x < markers.length; x++){
-      markers[x].setVisible(false);
-    }
-  },
 
   makeLocations: function(locations) {//Creating the array of location titles
     var self = this;
@@ -70,14 +77,19 @@ var ViewModel = {
       self.markerArray.push(new Location(location));
     });
   },
+
+  //-----------------------------------------------------------
+  //When the user clicks the location from the side menu,
+  //this is the first function that is executed
   goToLocation : function(place,data) {
     for (var x = 0; x < markers.length; x++) {
       markers[x].setVisible(false);//Clears all visible markers off the map
     }
     place.marker.setVisible(true);//Makes the current marker selected visible
-    ViewModel.zomatoReviews(place);
-    place.marker.popInfoWindow();//Calls the marker property 'popInfoWindow' which callbacks the populateInfoWindow function
+    zomatoReviews(place);
+    //place.marker.popInfoWindow();//Calls the marker property 'popInfoWindow' which callbacks the populateInfoWindow function
   }
+  //-----------------------------------------------------------
 };
 
 ViewModel.makeLocations(locations);//Attaches the title array to the ViewModel
@@ -125,7 +137,6 @@ function initMap() {
         var title = locations[i].title;
         marker = new google.maps.Marker({
           position : position,
-          visible : false,
           map : map,
           title : title,
           website : locations[i].website,
@@ -166,8 +177,19 @@ function initMap() {
             var nearStreetViewLocation = data.location.latLng;//Create a variable to store the nearest location to the current marker selected
             var heading = google.maps.geometry.spherical.computeHeading(//Organize the content for the popup box
               nearStreetViewLocation, marker.position);
-              infowindow.setContent('<div style="text-align:center;"><h2><a style="text-decoration:none;color:black;" href="'+marker.website+'">'+marker.title+'</a>' +
-                '</h2><div id="pano"></div>');
+              infowindow.setContent(
+                '<div style="text-align:center;">'+
+
+                  '<h2>'+
+                    '<a style="text-decoration:none;color:black;" href="'+marker.website+'">'+marker.title+'</a>' +
+                  '</h2>'+
+
+                  '<div style="border: solid red 1px;">'+
+                    '<div id="pano"</div>'+
+
+                '</div>'+
+
+                '<div id="listView" style="float:right;"><h3>Zomato Reviews</h3>'+reviews+'</div>');
               var panoramaOptions = {//Create the panorama defaults
                 position: nearStreetViewLocation,
                 pov: {

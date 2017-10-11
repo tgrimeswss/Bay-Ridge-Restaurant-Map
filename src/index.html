@@ -9,25 +9,24 @@
     <link href="bootstrap/css/bootstrap-grid.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Asap+Condensed" rel="stylesheet">
   </head>
-  <body style="font-family: 'Asap Condensed', sans-serif;background-color:#F5F2F2">
+  <body>
     <div class='container'>
       <div class="row">
-        <header class="col-sm-12" id="topBar" style="text-align:center;margin: 10px 0px 10px 0px;border-bottom:solid black 1px;padding:5px">
-          <span>Where to eat in . . .<span style="font-size: 300%">Bay Ridge <span><img src="forkknife.png"></span></span></span>
+        <header class="col-sm-12" id="topBar">
+          <span>Where to eat in . . .<span id="bigFont">Bay Ridge <span><img src="forkknife.png"></span></span></span>
         </header>
         <hr>
       </div>
 
       <div class='row'>
-        <aside class='col-md-3' style="text-align:center;background-color:#ECE6E6;border: solid #E6E1E1 2px;" id="sideBar">
-          <p style="text-align:center;">Restaurant search
-            <input id="search" type="search" name="search" style="margin: 10px 0 0 0;" placeholder="Search for a place" data-bind="value: query, valueUpdate: 'keyup'"/>
+        <aside class='col-md-3' id="sideBar">
+          <p>Restaurant search
+            <input id="search" type="search" name="search" placeholder="Search for a place" data-bind="value: query, valueUpdate: 'keyup'"/>
           </p>
           <span>
             <button data-bind="click:showAllmarkers">Show all</button>
-            <button data-bind="click:hideAllmarkers">Hide all</button>
           </span>
-          <ul style="padding:0;" data-bind="foreach:markerArray"><!--locationsArray-->
+          <ul data-bind="foreach:markerArray">
             <li class="sideBarElements">
               <span id="place" data-bind="text:title,click:$parent.goToLocation"></span>
             </li>
@@ -38,11 +37,11 @@
         </main>
       </div>
       <br>
-      <footer class="row" style="background-color:white;">
+      <footer class="row" id="footer">
         <div class="col-md-12">
           <img class="zomatoPic" src="Zomato.png">
           <ul data-bind="foreach:reviewList">
-            <li data-bind="text:$data" style="margin-bottom: 5px;"></li>
+            <li id="reviewList" data-bind="text:$data"></li>
           </ul>
         </div>
       </footer>
