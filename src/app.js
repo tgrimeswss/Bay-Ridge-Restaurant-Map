@@ -1,7 +1,7 @@
 var map;//Global map variable
 var markers = [];//Original markers array set empty. This will become populated in a for loop from the locations variable
 var reviews = [];//Global array for Zomato reviews
-/*window.onerror = function(msg,url,line) {//If the DOM does not load properly...
+window.onerror = function(msg,url,line) {//If the DOM does not load properly...
   alert('Hmm.. There seems to be a problem loading this page.\n\n' +
   'Message: ' + msg + '\nURL : ' + url + '\nLine : ' + line);
   return true;
@@ -9,7 +9,7 @@ var reviews = [];//Global array for Zomato reviews
 
 mapError = function() {//If the map does not load properly...
   alert('There seems to be a map error');
-};*/
+};
 
 var zomatoReviews = function(place,marker) {//Ajax request to Zomato.com for restaurant reviews
   $.ajax({
