@@ -29,13 +29,13 @@ var zomatoReviews = function(place,marker) {//Ajax request to Zomato.com for res
     },
     error: function(xhr, ajaxOptions, thrownError) {
       alert('Hmm.. There seems to a problem with our Zomato API. Check back ' +
-       'in with us later. We are working on to fix it.')
+       'in with us later. We are working on to fix it.');
     },
     clearReviews : function() {
       reviews.splice(0,reviews.length);
-    },
+    }
   });
-}
+};
 
 var Location = function(data) {//Constructor for the titles
   this.title = data.title; //See above
