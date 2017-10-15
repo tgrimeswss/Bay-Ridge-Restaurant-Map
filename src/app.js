@@ -1,6 +1,5 @@
 var map;//Global map variable
 var markers = [];//Original markers array set empty. This will become populated in a for loop from the locations variable
-var reviews = [];//Global array for Zomato reviews
 window.onerror = function(msg,url,line) {//If the DOM does not load properly...
   alert('Hmm.. There seems to be a problem loading this page.\n\n' +
   'Message: ' + msg + '\nURL : ' + url + '\nLine : ' + line);
@@ -11,40 +10,14 @@ mapError = function() {//If the map does not load properly...
   alert('There seems to be a map error');
 };
 
-var zomatoReviews = function(place,marker) {//Ajax request to Zomato.com for restaurant reviews
-  $.ajax({
-    dataType: 'json',
-    url: 'https://developers.zomato.com/api/v2.1/reviews?res_id='+place.marker.resID,
-    headers: {
-      'user-key': '19b6f28a79ec4858856da336e1fee593'
-    },
-    success: function(response, status, xhr) {
-      this.clearReviews();//Clears any pre-existing zomato Reviews from any other clicked marker
-      ViewModel.reviewList.removeAll();//Removes all current items in the review Array
-      for (var i = 0; i < response.user_reviews.length; i++) {//Pushes each review into an observable array
-        ViewModel.reviewList.push('"'+response.user_reviews[i].review.review_text +'"');
-        reviews.push('"'+response.user_reviews[i].review.review_text +'"');//See above
-      }
-      place.marker.popInfoWindow();
-    },
-    error: function(xhr, ajaxOptions, thrownError) {
-      alert('Hmm.. There seems to a problem with our Zomato API. Check back ' +
-       'in with us later. We are working on to fix it.');
-    },
-    clearReviews : function() {
-      reviews.splice(0,reviews.length);
-    }
-  });
-};
-
-var Location = function(data) {//Constructor for the titles
+var Location = function(data) {//Constructor for the titles (data = locations)
   this.title = data.title; //See above
 };
 
 var ViewModel = {
 
- // markerArray : ko.observableArray(locations),//Starts with the full list of locations
-  markerArray : ko.observableArray(),//Starts with the full list of locations
+  markerArray : ko.observableArray(),//Starts with the empty list of locations then
+  //is populated by the Locations contructor function
 
   query : ko.observable(''),//Empty search array
 
@@ -64,7 +37,7 @@ var ViewModel = {
     }
   },
 
-  showAllmarkers : function() {
+  showAllmarkers : function() {//Shows all the markers on the map
     for (var x = 0; x < markers.length; x++) {
       markers[x].setVisible(true);
       markers[x].setAnimation(google.maps.Animation.DROP);
@@ -86,15 +59,12 @@ var ViewModel = {
       markers[x].setVisible(false);//Clears all visible markers off the map
     }
     place.marker.setVisible(true);//Makes the current marker selected visible
-    zomatoReviews(place);
-    //place.marker.popInfoWindow();//Calls the marker property 'popInfoWindow' which callbacks the populateInfoWindow function
+    place.marker.popInfoWindow();
   }
   //-----------------------------------------------------------
 };
 
 ViewModel.makeLocations(locations);//Attaches the title array to the ViewModel
-
-
 
 
 function initMap() {
@@ -127,7 +97,7 @@ function initMap() {
     //title, the corresponding website and some animation.
     var largeInfoWindow = new google.maps.InfoWindow();
 
-    var createWindow = function() {
+    createWindow = function() {
       populateInfoWindow(this,largeInfoWindow);
     };
 
@@ -144,12 +114,13 @@ function initMap() {
           resID : locations[i].resID,
           animation : google.maps.Animation.DROP,
           icon : 'forkknife.png',
-          id : i
+          id : i,
         });
 
         //Added marker functionality attachments below
         locations[i].marker = marker;//Adds a marker property to the location data
         ViewModel.markerArray()[i].marker = marker;//Adds the marker titles for the search query
+        marker.zomato = ViewModel.zomatoReviews;
         marker.popInfoWindow = createWindow;//Adds a property to create a window for the currently selected marker
         marker.addListener('click',createWindow);//Attaches the click element to each marker
         markers.push(marker);//Adds the current marker to the array of markers
@@ -157,59 +128,85 @@ function initMap() {
     })();
 
     var populateInfoWindow = function (marker,infowindow) {
-      //If the window isn't connected to a marker, set the window to nothing
-      if(infowindow.marker != marker) {
-        infowindow.setContent('');
-        infowindow.marker = marker;
-        infowindow.addListener('closeclick', function() {
-          infowindow.marker = null;
-        });
+      reviews = [];
+      zomatoReviews = function(data) {//Ajax request to Zomato.com for restaurant reviews
+        $.ajax({
+          dataType: 'json',
+          url: 'https://developers.zomato.com/api/v2.1/reviews?res_id='+marker.resID,
+          headers: {
+            'user-key': '19b6f28a79ec4858856da336e1fee593'
+          },
+          success: function(response, status, xhr) {
+            clearReviews = function() {//Removes the current zomato reviews when the current marker is clicked
+              reviews.splice(0,reviews.length);
+            };
+            ViewModel.reviewList.removeAll();//Removes all current items in the review Array
+            for (var i = 0; i < response.user_reviews.length; i++) {//Pushes each review into an observable array
+              ViewModel.reviewList.push('"'+response.user_reviews[i].review.review_text +'"');
+              reviews.push('"'+response.user_reviews[i].review.review_text +'"');//See above
+            }
 
-        var streetViewService = new google.maps.StreetViewService();//Storing a streetViewService instance
-        var radius = 50;//Radius of the streetview will be initially set to 50
+            if(infowindow.marker != marker) {//If the window isn't connected to a marker...
+              infowindow.setContent('');//set the window to nothing
+              infowindow.marker = marker;
+              infowindow.addListener('closeclick', function() {
+                infowindow.marker = null;
+              });
+              var streetViewService = new google.maps.StreetViewService();//Storing a streetViewService instance
+              var radius = 50;//Radius of the streetview will be initially set to 50
 
-        //If the status of the streetView is good to go, create a nearby location
-        //then create DOM node that has a head, storing the marker title, marker pano
-        //and the marker website
-        var getStreetView = function (data, status) {
-          if (status == google.maps.StreetViewStatus.OK) {//If the status of the StreetView is good to go...
-            console.log('Name: '+marker.title+'. GPS: '+marker.position);//Log the coordinates and title
-            var nearStreetViewLocation = data.location.latLng;//Create a variable to store the nearest location to the current marker selected
-            var heading = google.maps.geometry.spherical.computeHeading(//Organize the content for the popup box
-              nearStreetViewLocation, marker.position);
-              infowindow.setContent(
-                '<div style="text-align:center;">'+
+              //If the status of the streetView is good to go, create a nearby location
+              //then create DOM node that has a head, storing the marker title, marker pano
+              //and the marker website
+              var getStreetView = function (data, status) {
 
-                  '<h2>'+
-                    '<a style="text-decoration:none;color:black;" href="'+marker.website+'">'+marker.title+'</a>' +
-                  '</h2>'+
+                if (status == google.maps.StreetViewStatus.OK) {//If the status of the StreetView is good to go...
+                  console.log('Name: '+marker.title+'. GPS: '+marker.position);//Log the coordinates and title
+                  var nearStreetViewLocation = data.location.latLng;//Create a variable to store the nearest location to the current marker selected
+                  var heading = google.maps.geometry.spherical.computeHeading(//Organize the content for the popup box
+                    nearStreetViewLocation, marker.position);
+                    infowindow.setContent(
+                      '<div style="text-align:center;">'+
 
-                  '<div style="border: solid red 1px;">'+
-                    '<div id="pano"</div>'+
+                        '<h2>'+
+                          '<a style="text-decoration:none;color:black;" href="'+marker.website+'">'+marker.title+'</a>' +
+                        '</h2>'+
 
-                '</div>'+
+                        '<div style="border: solid red 1px;">'+
+                          '<div id="pano"</div>'+
 
-                '<div id="listView" style="float:right;"><h3>Zomato Reviews</h3>'+reviews+'</div>');
-              var panoramaOptions = {//Create the panorama defaults
-                position: nearStreetViewLocation,
-                pov: {
-                  heading: heading,
-                  pitch: 30
+                      '</div>'+
+
+                      '<div id="listView" style="float:right;"><h3>Zomato Reviews</h3>'+reviews+'</div>');
+                    var panoramaOptions = {//Create the panorama defaults
+                      position: nearStreetViewLocation,
+                      pov: {
+                        heading: heading,
+                        pitch: 30
+                      }
+                    };
+                  var panorama = new google.maps.StreetViewPanorama(document.getElementById('pano'), panoramaOptions);//Initiate the panorama
+                } else {
+                  infowindow.setContent('<div>' + marker.title + '</div>' +//If the marker isn't found, Create an alert box telling the user there is no street view found
+                    '<div>No Street View Found</div>');
                 }
               };
-            var panorama = new google.maps.StreetViewPanorama(document.getElementById('pano'), panoramaOptions);//Initiate the panorama
-          } else {
-            infowindow.setContent('<div>' + marker.title + '</div>' +//If the marker isn't found, Create an alert box telling the user there is no street view found
-              '<div>No Street View Found</div>');
-          }
-        };
-        streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);// Open the infowindow on the correct marker.
-        infowindow.open(map, marker);// Open the infowindow on the correct marker.
+              streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);// Open the infowindow on the correct marker.
+              infowindow.open(map, marker);// Open the infowindow on the correct marker.
 
-        map.panTo(marker.position);//Go to the location of the marker
-        map.setZoom(15);//Zoom to 16 on the map
-        marker.setAnimation(google.maps.Animation.DROP);//Animates the marker
-      }
+              map.panTo(marker.position);//Go to the location of the marker
+              map.setZoom(15);//Zoom to 16 on the map
+              marker.setAnimation(google.maps.Animation.DROP);//Animates the marker
+            }
+
+          },
+          error: function(xhr, ajaxOptions, thrownError) {
+            alert('Hmm.. There seems to a problem with our Zomato API. Check back ' +
+             'in with us later. We are working on to fix it.');
+          }
+        });
+      };
+      zomatoReviews();//Invoking the reviews
     };
   }
 
