@@ -1,6 +1,6 @@
 # Where to eat in Bay Ridge, Brooklyn
 
-### Neighborhood Map Project (Udacity.com)
+### Neighborhood Map Project
 
 #### Synopsis:
 Bay Ridge is a lively community situated in the south western area of Brooklyn near the famous Verrazano Bridge. This application selects a sample of authentic eateries for the incoming traveller's to check out.
